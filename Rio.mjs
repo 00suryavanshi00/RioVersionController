@@ -1,5 +1,6 @@
 import path from 'path';
 import fs from 'fs/promises';
+import crypto from 'crypto';
 
 class Rio{
 
@@ -31,7 +32,25 @@ class Rio{
             console.log("This project is already being tracked by Rio.")
         }
     }
+
+
+    hashObject(content){
+        return crypto.createHash('sha1').update(content, 'utf-8').digest('hex')
+    }
+
+    async addFileAndfolder(contentTobeAdded){
+
+        const data = await fs.readFile(contentTobeAdded, {encoding: 'utf-8'});
+        const datahash = this.hashObject(data);
+
+        // the name of the object files are same as the hashed value (starting 2 chars are the folder name and remaining is file name)
+        // for now implementing the simple version of objects like folder in git the names are directly hashes
+
+        const newFileHashedObjectPath = path.join(this.objectsPath, datahash)
+        await fs.writeFile(newFileHashedObjectPath, data)
+    }
 }
 
 
 const rioVersionController = new Rio();
+rioVersionController.addFileAndfolder('README.md')
