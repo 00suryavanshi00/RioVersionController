@@ -48,6 +48,24 @@ class Rio{
 
         const newFileHashedObjectPath = path.join(this.objectsPath, datahash)
         await fs.writeFile(newFileHashedObjectPath, data)
+
+
+        await this.updateStageArea(contentTobeAdded, datahash)
+    }
+
+
+    async updateStageArea(filePath, fileHash){
+ 
+
+        const index = JSON.parse(await fs.readFile(this.indexPath, {encoding: 'utf-8'}));
+
+        // adding file
+        index.push({ 
+            path : filePath,
+            hash : fileHash
+         });
+
+        await fs.writeFile(this.indexPath, JSON.stringify(index))
     }
 }
 
