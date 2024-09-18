@@ -9,6 +9,9 @@ class Rio{
 
         // this is where .rio will be created
         this.rioPath = path.join(rioPath, '.rio');
+
+
+        // all the hashed objects are stored here commits, staged files etc
         this.objectsPath = path.join(this.rioPath, 'objects')
         this.headPath = path.join(this.rioPath, 'HEAD')
 
@@ -51,24 +54,73 @@ class Rio{
 
 
         await this.updateStageArea(contentTobeAdded, datahash)
+
     }
-
-
+    
+    
     async updateStageArea(filePath, fileHash){
- 
-
+        
+        
         const index = JSON.parse(await fs.readFile(this.indexPath, {encoding: 'utf-8'}));
-
+        
         // adding file
         index.push({ 
             path : filePath,
             hash : fileHash
-         });
-
+        });
+        
         await fs.writeFile(this.indexPath, JSON.stringify(index))
+        console.log(`file has been added to index ${filePath} and hash is ${fileHash}`)
+    }
+
+
+    async getHead(){
+        try{
+
+            return await fs.readFile(this.headPath, {encoding: 'utf-8'});
+        }
+        catch(e){
+            console.log("Faulty Head!!")
+        }
+    }
+
+    async commit(message){
+
+
+        const index = JSON.parse(await fs.readFile(this.indexPath, {encoding: 'utf-8'}));
+        const lastCommit = await this.getHead();
+
+        const commitData = {
+
+            //TODO add author
+            "author" : "",
+            "timeStamp" : new Date().toISOString(),
+            "message" : message,
+            "parent" : lastCommit,
+            "files" : index
+        } 
+
+
+        // since commit is a also stored as a hash object in objects folder
+        const commitHash = this.hashObject(JSON.stringify(commitData))
+        const commitPath =  path.join(this.objectsPath, commitHash)
+        await fs.writeFile(commitPath, JSON.stringify(commitData))
+
+        // update the head to latest commit
+        await fs.writeFile(this.headPath, commitHash)
+
+        // clear the staging area now
+        await fs.writeFile(this.indexPath, JSON.stringify([]));
+
+
+        console.log(`file has been commited ${commitPath} and hash is ${commitHash}`)
     }
 }
 
 
-const rioVersionController = new Rio();
-rioVersionController.addFileAndfolder('README.md')
+(async ()=> {
+
+    const rioVersionController = new Rio();
+    await rioVersionController.addFileAndfolder('README.md')
+    await rioVersionController.commit("added the file to commit")
+})();
