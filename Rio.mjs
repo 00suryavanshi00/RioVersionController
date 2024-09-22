@@ -99,6 +99,19 @@ class Rio{
 
     }
 
+    async getFileData(fileHash){
+
+        const objectpath = path.join(this.objectsPath, fileHash)
+
+        try{
+            return JSON.parse(await fs.readFile(objectpath, {encoding: 'utf-8'}))
+        }
+        catch(e){
+            console.log("error while reading file")
+            return null;
+        }
+    }
+
     async commit(message){
 
 
@@ -149,6 +162,15 @@ class Rio{
 
     async diff(commitHash){
 
+        const commitData = await this.getCommitData(commitHash)
+
+        if(!commitData){
+            console.log("Commit not found!")
+            return
+        }
+        console.log("Changes in the last commit are")
+
+        // for(const file of commitData.)
     }
 }
 
