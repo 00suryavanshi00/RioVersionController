@@ -1,6 +1,7 @@
 import path from 'path';
 import fs from 'fs/promises';
 import crypto from 'crypto';
+import chalk from 'chalk';
 
 class Rio{
 
@@ -103,8 +104,9 @@ class Rio{
 
         const objectpath = path.join(this.objectsPath, fileHash)
 
+
         try{
-            return JSON.parse(await fs.readFile(objectpath, {encoding: 'utf-8'}))
+            return await fs.readFile(objectpath, {encoding: 'utf-8'})
         }
         catch(e){
             console.log("error while reading file")
@@ -160,17 +162,40 @@ class Rio{
 
     }
 
+    async getParentFileContent(parentCommitData, filepath){
+
+        for (const file of parentCommitData.files){
+            if (filepath == file.path){
+                return await this.getFileData(file.hash)
+            }
+        }
+    }
+
     async diff(commitHash){
 
         const commitData = await this.getCommitData(commitHash)
-
+        console.log(`____________\n ${commitData.files[0]}`)
         if(!commitData){
             console.log("Commit not found!")
             return
         }
-        console.log("Changes in the last commit are")
+        console.log("Changes in the last commit are: ")
 
-        // for(const file of commitData.)
+        for(const file of commitData.files){
+            console.log(`File : ${file.path}`)
+            const fileContent = await this.getFileData(file.hash)
+            // console.log(`File content : ${fileContent}`)
+            console.log(chalk.green(`File content : ${fileContent}`))
+
+
+            if(commitData.parent){
+                const parentCommitData = await this.getCommitData(commitData.parent)
+                const oldFileContent = await this.getParentFileContent(parentCommitData, file.path)
+                // console.log(`Old Changes: ${oldFileContent}`)
+                console.log(chalk.blue(`Old Changes:\n ${oldFileContent}`))
+                
+            }
+        }
     }
 }
 
@@ -178,9 +203,9 @@ class Rio{
 (async ()=> {
 
     const rioVersionController = new Rio();
-    // await rioVersionController.commit("added the file to commit")
     // await rioVersionController.addFileAndfolder('README.md')
+    // await rioVersionController.commit("added the file to commit")
 
-
-    await rioVersionController.log();
+    await rioVersionController.diff("5566c1cb8bc04b8350b3070110cce1b42acb3225")
+    // await rioVersionController.log();
 })();
