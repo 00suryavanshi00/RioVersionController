@@ -90,7 +90,7 @@ class Rio{
         const commitPath = path.join(this.objectsPath, commitHash)
 
         try{
-            return await fs.readFile(commitPath, {encoding:'utf-8'})
+            return JSON.parse(await fs.readFile(commitPath, {encoding:'utf-8'}))
         }
         catch(e){
             console.log("Error while reading file")
@@ -135,12 +135,12 @@ class Rio{
         let currentCommitHash = await this.getHead(); //this fetches the current head
 
         // till it reaches root # this is a reverse traversal to mimic sort of how git shows from the recent most commit
-        let commitCount = 0
+        let commitCount = 1
         while(currentCommitHash) {
 
             const commitData = await this.getCommitData(currentCommitHash)
-            console.log(commitData)
-            console.log(`Commit Number: ${commitCount++}\nCommit: ${commitData.hash} \n Date: ${commitData["timeStamp"]}`)
+            console.log(typeof(commitData))
+            console.log(`Commit Number: ${commitCount++}\nCommit: ${currentCommitHash} \n Date: ${commitData.timeStamp}`)
 
             currentCommitHash = commitData.parent;
         }
