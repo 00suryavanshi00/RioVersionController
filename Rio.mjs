@@ -2,6 +2,7 @@ import path from 'path';
 import fs from 'fs/promises';
 import crypto from 'crypto';
 import chalk from 'chalk';
+import {diffLines} from 'diff';
 
 class Rio{
 
@@ -192,7 +193,33 @@ class Rio{
                 const parentCommitData = await this.getCommitData(commitData.parent)
                 const oldFileContent = await this.getParentFileContent(parentCommitData, file.path)
                 // console.log(`Old Changes: ${oldFileContent}`)
-                console.log(chalk.blue(`Old Changes:\n ${oldFileContent}`))
+                // console.log(chalk.blue(`Old Changes:\n ${oldFileContent}`))
+
+                if (oldFileContent != undefined){
+                    console.log(`\nDIFF:\n`)
+
+                    const diff = diffLines(oldFileContent, fileContent);
+
+                    // console.log(diff);
+                    
+                    diff.forEach(part => {
+                        if(part.added){
+                            process.stdout.write(chalk.green(part.value))
+
+                        }
+                        else if(part.removed){
+                            process.stdout.write(chalk.red(part.value))
+                        }
+                        else{
+                            process.stdout.write(chalk.grey(part.value))
+                        }
+                    })
+
+                    console.log()
+                }
+                else{
+                    console.log('It looks like this is a new file')
+                }
                 
             }
         }
