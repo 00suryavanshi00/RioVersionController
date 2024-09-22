@@ -80,8 +80,23 @@ class Rio{
             return await fs.readFile(this.headPath, {encoding: 'utf-8'});
         }
         catch(e){
+            return null 
             console.log("Faulty Head!!")
         }
+    }
+
+    async getCommitData(commitHash){
+        
+        const commitPath = path.join(this.objectsPath, commitHash)
+
+        try{
+            return await fs.readFile(commitPath, {encoding:'utf-8'})
+        }
+        catch(e){
+            console.log("Error while reading file")
+            return null;
+        }
+
     }
 
     async commit(message){
@@ -115,12 +130,35 @@ class Rio{
 
         console.log(`file has been commited ${commitPath} and hash is ${commitHash}`)
     }
+
+    async log(){
+        let currentCommitHash = await this.getHead(); //this fetches the current head
+
+        // till it reaches root # this is a reverse traversal to mimic sort of how git shows from the recent most commit
+        let commitCount = 0
+        while(currentCommitHash) {
+
+            const commitData = await this.getCommitData(currentCommitHash)
+            console.log(commitData)
+            console.log(`Commit Number: ${commitCount++}\nCommit: ${commitData.hash} \n Date: ${commitData["timeStamp"]}`)
+
+            currentCommitHash = commitData.parent;
+        }
+
+    }
+
+    async diff(commitHash){
+
+    }
 }
 
 
 (async ()=> {
 
     const rioVersionController = new Rio();
-    await rioVersionController.addFileAndfolder('README.md')
-    await rioVersionController.commit("added the file to commit")
+    // await rioVersionController.commit("added the file to commit")
+    // await rioVersionController.addFileAndfolder('README.md')
+
+
+    await rioVersionController.log();
 })();
