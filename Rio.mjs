@@ -7,6 +7,9 @@ import chalk from 'chalk';
 import {diffLines} from 'diff';
 import { Command } from 'commander';
 
+
+const program = new Command();
+
 class Rio{
 
 
@@ -240,4 +243,29 @@ class Rio{
 //     await rioVersionController.log();
 // })();
 
+program.command('init').action(async () => {
+    const rio = new Rio();
+})
 
+program.command('add <file>').action(async (file) => {
+    const rio = new Rio();
+    await rio.addFileAndfolder(file);
+})
+
+program.command('commit <message>').action(async (message)=>{
+    const rio = new Rio();
+    await rio.commit(message);
+})
+
+program.command('log').action(async() => {
+    const rio = new Rio();
+    await rio.log();
+})
+
+program.command('diff <hash>').action(async(hash) =>{
+    const rio = new Rio();
+    await rio.diff(hash)
+} )
+
+
+program.parse(process.argv)
