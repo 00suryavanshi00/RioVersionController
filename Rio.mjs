@@ -1,8 +1,11 @@
+#! /usr/bin/env node
+
 import path from 'path';
 import fs from 'fs/promises';
 import crypto from 'crypto';
 import chalk from 'chalk';
 import {diffLines} from 'diff';
+import { Command } from 'commander';
 
 class Rio{
 
@@ -155,8 +158,8 @@ class Rio{
         while(currentCommitHash) {
 
             const commitData = await this.getCommitData(currentCommitHash)
-            console.log(typeof(commitData))
-            console.log(`Commit Number: ${commitCount++}\nCommit: ${currentCommitHash} \n Date: ${commitData.timeStamp}`)
+
+            console.log(`Commit Number: ${commitCount++}\nCommit: ${currentCommitHash}\nMesage: ${commitData.message}\nDate: ${commitData.timeStamp}`)
 
             currentCommitHash = commitData.parent;
         }
@@ -227,12 +230,14 @@ class Rio{
 }
 
 
-(async ()=> {
+// (async ()=> {
 
-    const rioVersionController = new Rio();
-    // await rioVersionController.addFileAndfolder('README.md')
-    // await rioVersionController.commit("added the file to commit")
+//     const rioVersionController = new Rio();
+//     // await rioVersionController.addFileAndfolder('README.md')
+//     // await rioVersionController.commit("added the file to commit")
 
-    await rioVersionController.diff("5566c1cb8bc04b8350b3070110cce1b42acb3225")
-    // await rioVersionController.log();
-})();
+//     // await rioVersionController.diff("1e8b70b19248515e1f8b49d5f3bf3754c50bf90b")
+//     await rioVersionController.log();
+// })();
+
+
